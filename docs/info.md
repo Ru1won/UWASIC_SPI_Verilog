@@ -19,7 +19,4 @@ You can also include images in this folder and reference them in the markdown. E
 
 <!-- still learning stuff-->
 
-## Additional Verilog Learning
-
-<-- Getting to know verilog syntax and practice problems on HDLbits https://hdlbits.01xz.net/wiki/Special:VlgStats/60887462D60A7C34 -->
 
