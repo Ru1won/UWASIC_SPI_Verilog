@@ -1,6 +1,36 @@
-May/1/2025:
+May/1/2026:
   Getting to know verilog syntax and practice problems on HDLbits https://hdlbits.01xz.net/wiki/Special:VlgStats/60887462D60A7C34
   Just found this really cool circuit called a carry-select adder.
   Suppose in case A we have two 16-bit adders that make up a 32-bit [31:0] adder. In this A scenario, the 16-bit adder that makes up the upper half bits [31:16] of the 32-bit adder has to wait for the carry-out value from the 16-bit [0:15] bottom adder. This means the calculations for the upper 16 bits have to wait until we get the carry out from the lower 16-bit adder.
   Now in case B, we run 3 adders in parallel. The [0:15] bit bottom adder runs per usual, but in parallel we can run two other adders for the upper bits. The adder upper_1 takes in the input 16 bits [31:16], and assumes that the carry-out from the bottom adder = 1. Similarly, upper_0 assumes that the bottom carry-out = 0. Since the upper adders don't have to wait, but instead run on assumptions of the bottom carry-out, all three adders essentially run in parallel. Then, when the actual carry-out value is found, a 2-1 mux chooses the output from upper_1 or upper_0 accordingly. Thus the upper bits [31:16] are selected much faster in the Case B carry-select adder than in the case A ripple-carry adder.
   This dynamic reminds me of CPUs and GPUs, where CPUs take up less die space to run processes in series while GPUs take up more die space to run them in parallel.
+
+May/3/2026:
+  Learned about the Sum-of-Products method to create logic for any boolean truth table. The process is intuitive.
+  Given a truth table, there will be 2^N permutations of input values (in the table below, there are 8 permutations since we have 3 inputs):
+    +---------+---------+---------+-----+
+    | input_1 | input_2 | input_3 | out |
+    +---------+---------+---------+-----+
+    | 0       | 0       | 0       | 0   |
+    | 0       | 0       | 1       | 1   |
+    | 0       | 1       | 0       | 0   |
+    | 0       | 1       | 1       | 0   |
+    | 1       | 0       | 0       | 0   |
+    | 1       | 0       | 1       | 1   |
+    | 1       | 1       | 0       | 0   |
+    | 1       | 1       | 1       | 1   |
+    +---------+---------+---------+-----+
+    
+    And now, out = "Sum-of-Products logic"
+    The Sum-of-Products method aims to find all cases where out = 1, using only AND & OR logic gates. So: (0,0,1) = 1; (1,0,1) =1; and (1,1,1) = 1
+    - For the case (0,0,1) = 1, we find (~input_1 AND ~input_2 AND input_3) = 1
+    This process is repeated for all cases when out = 1, thereby finding all permutations of inputs that can result in out being True.
+    - For the case (1,0,1) = 1, we find (input_1 AND ~input_2 AND input_3) = 1
+    - For the case (1,1,1) = 1, we find (input_1 AND input_2 AND input_3) = 1
+    Finally, when ANY of these desired cases are True, out = 1. Thus out = (~input_1 AND ~input_2 AND input_3) OR (input_1 AND ~input_2 AND input_3) OR (input_1 AND input_2 AND input_3)
+
+  Maybe I can write a python script that performs this method after being given a truth table. The expression given by the Sum-of-Products method can probably be simplified using Karnaugh maps and Boolean algebra.
+    
+    
+  
+    
