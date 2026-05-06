@@ -30,6 +30,12 @@ May/3/2026:
     Finally, when ANY of these desired cases are True, out = 1. Thus out = (~input_1 AND ~input_2 AND input_3) OR (input_1 AND ~input_2 AND input_3) OR (input_1 AND input_2 AND input_3)
 
   Maybe I can write a python script that performs this method after being given a truth table. The expression given by the Sum-of-Products method can probably be simplified using Karnaugh maps and Boolean algebra.
+
+May/6/2026:
+  The last few days have involved lots of practice with flip flops, shift-registers, and iterative methods. Finally, I've started working on actually building the SPI peripheral. Looking through UWASIC Onboarding documentation, the metastability fix caught my eye. Was confused on how the fix worked at first, but this video explains it in simple terms on Youtube: https://www.youtube.com/watch?v=RWh5sKgAuj0. For a deeper understnding, this video was quite helpful: https://www.youtube.com/watch?v=5PRuPVIjEcs.
+  Essentially, metastability occurs when a signal is sampled by a flip flop right as it changes value. The flip flop can then go to either 0 or 1, based on environmental factors. However, it takes time to settle to a definite value and can cause errors in code/ASICs.
+  So how do we fix it? Metastability can be fixed by decreasing the frequency (increasing the clock period), since this increases the time available for the data to settle. However, practically having many different/slower clock frequencies may not be feasable. The solution proposed in UWASIC documentation: We accept metastibility can occur and instead work around it using a "synchonization chain".
+  A synchonization chain works by having two D-flip flops sampling a signal in series. Both Dffs are clocked by the faster clock of the destination domain (in the case of this onboarding project). While the first Dff can still go metastable, that signal isn't used by the destination domain. Instead the metastable output is given time to settle by passing it through the second Dff, thereby exponentially reducing the probability of the metastable signal making it to any useful components of the peripheral. Simple fix for an unavoidable problem!
     
     
   
