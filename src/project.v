@@ -15,12 +15,29 @@ module tt_um_UWASIC_onboarding_Ruwan_Kadam (
 );
   assign uio_oe = 8'hFF; // Set all IOs to output
 
-  // Create wires to refer to the values of the registers
   wire [7:0] en_reg_out_7_0;
   wire [7:0] en_reg_out_15_8;
   wire [7:0] en_reg_pwm_7_0;
   wire [7:0] en_reg_pwm_15_8;
   wire [7:0] pwm_duty_cycle;
+
+  wire [15:0] datahold;
+  wire transaction_complete;
+
+  SPIperipheral instSPI (.SCLK(ui_in[0]), .nCS(ui_in[2]), .COPI(ui_in[1]), .clk(clk), .rst_n(rst_n), .bit_16_send(datahold), .transaction_validated(transaction_complete));
+
+always @(posedge clk) begin
+    if (transaction_complete && datahold[15]) begin //checking for only write bits in datahold[15]
+        case (datahold[14:8])
+            7'h00: en_reg_out_7_0  <= datahold[7:0];
+            7'h01: en_reg_out_15_8 <= datahold[7:0];
+            7'h02: en_reg_pwm_7_0  <= datahold[7:0];
+            7'h03: en_reg_pwm_15_8 <= datahold[7:0];
+            7'h04: pwm_duty_cycle  <= datahold[7:0];
+            default: ;
+        endcase
+    end
+end
 
 
   // Instantiate the PWM module
