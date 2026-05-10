@@ -2,12 +2,12 @@ module SPIperipheral (
     input SCLK, nCS, COPI,
     input clk, rst_n,
     output [15:0]bit_16_send,//process output in top module
-    output transaction_validated,
+    output reg transaction_validated
 );
 
 
 //declaring registers
-reg [15:0]COPI_sync1, [15:0]COPI_sync2;
+reg [15:0] COPI_sync1, COPI_sync2;
 reg nCS_sync1, nCS_sync2;
 reg SCLK_sync1, SCLK_sync2;
 reg transaction_ready = 1'b0;
@@ -23,16 +23,16 @@ always @(posedge clk or negedge rst_n) begin
     SCLK_sync2 <= SCLK_sync1;
     if (!rst_n) begin
         transaction_ready <= 1'b0;
-        COPIsync_1[15:0] <= 16'b0;
-        COPIsync_2[15:0] <= 16'b0;
+        COPI_sync1[15:0] <= 16'b0;
+        COPI_sync2[15:0] <= 16'b0;
         i <= 0;
         //What if rst_n is hit and resets the COPI_sync registers to zero while data is still being pushed into them?
         //The registers would then be half-filled, which would result in an incorrect address and/or message.
         //This is a non-issue since setting the COPI_sync registers to zero will result in a 'read' first bit, meaning we can ignore the broken message.
     end
     else if ({(nCS_sync2 == 1'b0) & (SCLK_sync2 & !SCLK_sync1)}) begin
-            COPIsync_1[15-i] <= COPI;
-            COPIsync_2[15-i] <= COPIsync_1[15-i];
+            COPI_sync1[15-i] <= COPI;
+            COPI_sync2[15-i] <= COPI_sync1[15-i];
             i <= i + 1;
             //bit[15] will be the read/write bit, and if bit[15] == 0, the message will be diregarded by the top module
     end
@@ -42,8 +42,8 @@ always @(posedge clk or negedge rst_n) begin
         end
         else if (transaction_processed) begin
             transaction_ready <= 1'b0;
-            COPIsync_1[15:0] <= 16'b0;
-            COPIsync_2[15:0] <= 16'b0;
+            COPI_sync1[15:0] <= 16'b0;
+            COPI_sync2[15:0] <= 16'b0;
             i <= 0;
         end
     end
@@ -56,7 +56,7 @@ always @(posedge clk or negedge rst_n) begin
         transaction_validated <= 1'b0;
     end 
     else if (transaction_ready && !transaction_processed) begin
-        bit_16_send[15:0] <= COPIsync_2[15:0]
+        bit_16_send[15:0] <= COPI_sync2[15:0];
         transaction_validated <= 1'b1;
         transaction_processed <= 1'b1;
         end

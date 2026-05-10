@@ -9,7 +9,7 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-<!-- no idea what to include-->
+<!--Got Claude to generate a diagram showing how the timing works for comparing signals in previous and current cycles... Helps to create posedge vs negedge detection logic (sclk_signal_timing_v2.svg).-->
 
 ## How to test
 
