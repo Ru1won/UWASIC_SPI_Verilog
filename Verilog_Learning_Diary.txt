@@ -36,7 +36,14 @@ May/6/2026:
   Essentially, metastability occurs when a signal is sampled by a flip flop right as it changes value. The flip flop can then go to either 0 or 1, based on environmental factors. However, it takes time to settle to a definite value and can cause errors in code/ASICs.
   So how do we fix it? Metastability can be fixed by decreasing the frequency (increasing the clock period), since this increases the time available for the data to settle. However, practically having many different/slower clock frequencies may not be feasable. The solution proposed in UWASIC documentation: We accept metastibility can occur and instead work around it using a "synchonization chain".
   A synchonization chain works by having two D-flip flops sampling a signal in series. Both Dffs are clocked by the faster clock of the destination domain (in the case of this onboarding project). While the first Dff can still go metastable, that signal isn't used by the destination domain. Instead the metastable output is given time to settle by passing it through the second Dff, thereby exponentially reducing the probability of the metastable signal making it to any useful components of the peripheral. Simple fix for an unavoidable problem!
-    
-    
-  
-    
+
+May/9/2026:
+  Learning about edge detection logic as I'm working on the SPI peripheral code. Kinda stuck, but I get the part about non-blocking assignments and how they're used in sequential logic. A non-blocking assignment measures the current value of an 'assigner' signal, and then assigns it to the 'assignee' at the end of the wait period. This wait period allows for other active events and logic on that time step to be evaluated. Typically, the wait period is several orders of magnitude (1,000 to 10,000 times) smaller than the clock cycle so that it doesn't mess up the measurements and assignments at the next clock edge.
+  For example, suppose we have registers line_a and line_b, and every positive clockedge we have a simple d-flip-flop assigning line_a to the value of line_b.
+  always@(posedge clk) begin
+  line_a <= line_b;
+  end
+  In this circuit, value of line_b is measured immediately, and after a wait period 1000x smaller than the clock cycle, line_a is assigned to the previously measured value of line_b.
+
+
+
