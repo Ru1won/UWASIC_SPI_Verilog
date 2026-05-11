@@ -24,8 +24,8 @@ always @(posedge clk or negedge rst_n) begin
     SCLK_sync1 <= SCLK;
     SCLK_sync2 <= SCLK_sync1;
     SCLK_prev3 <= SCLK_sync2;
-    COPI_sync1 <= COPI
-    COPI_sync
+    COPI_sync1 <= COPI;
+    COPI_sync2 <= COPI_sync1;
     if (!rst_n) begin
         //What if rst_n is hit and resets the COPI_sync registers to zero while data is still being pushed into them?
         //The registers would then be half-filled, which would result in an incorrect address and/or message.
@@ -35,7 +35,6 @@ always @(posedge clk or negedge rst_n) begin
         bitstore <= 16'b0;
         transaction_ready <= 1'b0;
         bitsend <= 16'b0;
-        transaction_validated <= 1'b0;
     end
     else if ((nCS_sync2 == 1'b0)&&(c_ntinue == 1'b1)) begin //ensure nCS is low
         if ((SCLK_sync2 && !SCLK_prev3)&( i < 16)) begin
@@ -60,7 +59,8 @@ end
 // Update registers only after the complete transaction has finished and been validated
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-        transaction_processed <= 1'b1;
+        transaction_processed <= 1'b0;
+        transaction_validated <= 1'b0;
     end else if (transaction_ready && !transaction_processed) begin
         // Transaction is ready and not yet processed
         bitsend[15:0] <= bitstore[15:0];

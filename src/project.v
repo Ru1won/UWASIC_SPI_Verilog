@@ -21,8 +21,8 @@ module tt_um_UWASIC_onboarding_Ruwan_Kadam (
   reg [7:0] en_reg_pwm_15_8;
   reg [7:0] pwm_duty_cycle;
 
-  reg [15:0] datahold;
-  reg transaction_complete;
+  wire [15:0] datahold;
+  wire transaction_complete;
 
   SPIperipheral instSPI (.SCLK(ui_in[0]), .nCS(ui_in[2]), .COPI(ui_in[1]), .clk(clk), .rst_n(rst_n), .bitsend(datahold), .transaction_validated(transaction_complete));
 
