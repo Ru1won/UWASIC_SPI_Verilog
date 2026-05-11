@@ -27,7 +27,14 @@ module tt_um_UWASIC_onboarding_Ruwan_Kadam (
   SPIperipheral instSPI (.SCLK(ui_in[0]), .nCS(ui_in[2]), .COPI(ui_in[1]), .clk(clk), .rst_n(rst_n), .bitsend(datahold), .transaction_validated(transaction_complete));
 
 always @(posedge clk) begin
-    if (transaction_complete && datahold[15]) begin //checking for only write bits in datahold[15]
+    if (!rst_n) begin
+        en_reg_out_7_0  <= 8'h00;
+        en_reg_out_15_8 <= 8'h00;
+        en_reg_pwm_7_0  <= 8'h00;
+        en_reg_pwm_15_8 <= 8'h00;
+        pwm_duty_cycle  <= 8'h00;
+    end
+    else if (transaction_complete && datahold[15]) begin //checking for only write bits in datahold[15]
         case (datahold[14:8])
             7'h00: en_reg_out_7_0  <= datahold[7:0];
             7'h01: en_reg_out_15_8 <= datahold[7:0];
