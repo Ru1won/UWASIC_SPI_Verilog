@@ -13,7 +13,7 @@ reg SCLK_sync1, SCLK_sync2, SCLK_prev3;
 reg [15:0]bitstore;
 reg transaction_ready = 1'b0;
 reg transaction_processed = 1'b0;
-reg continue = 1'b1;
+reg c_ntinue = 1'b1;
 reg [4:0] i;
 
 // Process SPI protocol in the clk domain
@@ -29,15 +29,15 @@ always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         //What if rst_n is hit and resets the COPI_sync registers to zero while data is still being pushed into them?
         //The registers would then be half-filled, which would result in an incorrect address and/or message.
-        //Hence, the continue protocol ensures registers are not filled in after a reset is hit.
-        continue <= 1'b0;
+        //Hence, the c_ntinue protocol ensures registers are not filled in after a reset is hit.
+        c_ntinue <= 1'b0;
         i <= 0;
         bitstore <= 16'b0;
         transaction_ready <= 1'b0;
         bitsend <= 16'b0;
         transaction_validated <= 1'b0;
     end
-    else if ((nCS_sync2 == 1'b0)&&(continue == 1'b1)) begin //ensure nCS is low
+    else if ((nCS_sync2 == 1'b0)&&(c_ntinue == 1'b1)) begin //ensure nCS is low
         if ((SCLK_sync2 && !SCLK_prev3)&( i < 16)) begin
             bitstore[15-i] <= COPI_sync2; //bitstore [15-i] will never go out of bounds since i < 16.
             i <= i + 1;
@@ -47,7 +47,7 @@ always @(posedge clk or negedge rst_n) begin
         // When nCS goes high (transaction ends), validate the complete transaction
         if (nCS_sync2 && !nCS_prev3) begin
             transaction_ready <= 1'b1;
-            continue <= 1'b1;
+            c_ntinue <= 1'b1;
         end
         else if (transaction_processed) begin
             transaction_ready <= 1'b0;
