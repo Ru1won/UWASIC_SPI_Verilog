@@ -75,7 +75,7 @@ async def send_spi_transaction(dut, r_w, address, data):
         sclk = 1
         dut.ui_in.value = ui_in_logicarray(ncs, bit, sclk)
         await await_half_sclk(dut)
-    # End transaction - return CS high
+    # End transaction - return nCS high
     sclk = 0
     ncs = 1
     bit = 0
@@ -149,13 +149,33 @@ async def test_spi(dut):
 
     dut._log.info("SPI test completed successfully")
 
-@cocotb.test()
+@cocotb.test() #clock runs high for a 100ns period (risingedge to fallingedge) or at a 10MHz frequency
 async def test_pwm_freq(dut):
-    # Write your test here
+    dut._log.info("Start PWM Duty Cycle test")
+    clock = Clock(dut.clk, 100, units="ns")
+
+    cocotb.start_soon(clock.start())
+    dut.ena.value = 1
+    dut.ui_in.value = ui_in_logicarray(1, 0, 0)  # idle state while resetting
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 5)
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 5)
     dut._log.info("PWM Frequency test completed successfully")
 
 
 @cocotb.test()
 async def test_pwm_duty(dut):
-    # Write your test here
+    dut._log.info("Start PWM Duty Cycle test")
+    clock = Clock(dut.clk, 100, units="ns")
+
+    cocotb.start_soon(clock.start())
+    dut.ena.value = 1
+    dut.ui_in.value = ui_in_logicarray(1, 0, 0)  # idle state while resetting
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 5)
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 5)
+
+
     dut._log.info("PWM Duty Cycle test completed successfully")
