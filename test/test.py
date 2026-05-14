@@ -4,6 +4,7 @@
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
+from cocotb.triggers import FallingEdge
 from cocotb.triggers import ClockCycles
 from cocotb.types import Logic
 from cocotb.types import LogicArray
@@ -161,6 +162,25 @@ async def test_pwm_freq(dut):
     await ClockCycles(dut.clk, 5)
     dut.rst_n.value = 1
     await ClockCycles(dut.clk, 5)
+
+    await send_spi_transaction(dut, 1, 0x00, 0xFF)  # set uo_out[7:0] base value to 0xFF
+
+    await send_spi_transaction(dut, 1, 0x02, 0xFF)  # enable PWM modulation on all uo_out[7:0] bits
+
+    await send_spi_transaction(dut, 1, 0x04, 0x80) #duty cycle at 50%, which reduces errors in edge detection
+
+    await RisingEdge(dut.uo_out[0]) #since all 8 bits of uo_out share the same pwm signal, we can sample any one of them to get the frequency
+    t_rising_edge1 = cocotb.utils.get_sim_time(units="ns")
+
+    await RisingEdge(dut.uo_out[0])
+    t_rising_edge2 = cocotb.utils.get_sim_time(units="ns")
+
+    period = t_rising_edge2 - t_rising_edge1
+    freq = 1e9/period
+
+    assert (2970 < freq < 3030), f"Got frequency {freq} Hz"
+
+    await ClockCycles(dut.clk, 1000)
     dut._log.info("PWM Frequency test completed successfully")
 
 
@@ -177,5 +197,40 @@ async def test_pwm_duty(dut):
     dut.rst_n.value = 1
     await ClockCycles(dut.clk, 5)
 
+    await send_spi_transaction(dut, 1, 0x00, 0xFF)  # set uo_out[7:0] base value to 0xFF
 
+    await send_spi_transaction(dut, 1, 0x02, 0xFF)  # enable PWM modulation on all uo_out[7:0] bits
+
+    dut._log.info("PWM Duty Cycle 50% test begins")
+    await send_spi_transaction(dut, 1, 0x04, 0x80) #duty cycle at 50%
+    
+    await RisingEdge(dut.uo_out[0])
+    t_rising1 = cocotb.utils.get_sim_time(units="ns")
+
+    await FallingEdge(dut.uo_out[0])
+    t_falling1 = cocotb.utils.get_sim_time(units="ns")
+
+    await RisingEdge(dut.uo_out[0])
+    t_rising2 = cocotb.utils.get_sim_time(units="ns")
+
+    period = t_rising2 - t_rising1
+    hightime = t_falling1 - t_rising1
+
+    dutypercent = (hightime/period) * 100
+
+    assert (49 < dutypercent < 51), f"50% test resulted in duty cycle = {dutypercent} %"
+
+    # 0% duty cycle test
+    dut._log.info("PWM Duty Cycle 0% test begins")
+    await send_spi_transaction(dut, 1, 0x04, 0x00)
+    await ClockCycles(dut.clk, 5000)  # wait long enough for multiple PWM periods
+    assert dut.uo_out[0].value == 0, f"Expected 0% duty cycle, got {dut.uo_out[0].value}"
+
+    # 100% duty cycle test
+    dut._log.info("PWM Duty Cycle 100% test begins")  
+    await send_spi_transaction(dut, 1, 0x04, 0xFF)
+    await ClockCycles(dut.clk, 5000)
+    assert dut.uo_out[0].value == 1, f"Expected 100% duty cycle, got {dut.uo_out[0].value}"
+
+    await ClockCycles(dut.clk, 1000)
     dut._log.info("PWM Duty Cycle test completed successfully")
