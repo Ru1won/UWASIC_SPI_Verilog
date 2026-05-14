@@ -11,11 +11,11 @@ from cocotb.types import LogicArray
 
 async def await_half_sclk(dut):
     """Wait for the SCLK signal to go high or low."""
-    start_time = cocotb.utils.get_sim_time(units="ns")
+    start_time = cocotb.utils.get_sim_time(unit="ns")
     while True:
         await ClockCycles(dut.clk, 1)
         # Wait for half of the SCLK period (10 us)
-        if (start_time + 100*100*0.5) < cocotb.utils.get_sim_time(units="ns"):
+        if (start_time + 100*100*0.5) < cocotb.utils.get_sim_time(unit="ns"):
             break
     return
 
@@ -89,7 +89,7 @@ async def test_spi(dut):
     dut._log.info("Start SPI test")
 
     # Set the clock period to 100 ns (10 MHz)
-    clock = Clock(dut.clk, 100, units="ns")
+    clock = Clock(dut.clk, 100, unit="ns")
     cocotb.start_soon(clock.start())
 
     # Reset
@@ -153,7 +153,7 @@ async def test_spi(dut):
 @cocotb.test() #clock runs high for a 100ns period (risingedge to fallingedge) or at a 10MHz frequency
 async def test_pwm_freq(dut):
     dut._log.info("Start PWM Duty Cycle test")
-    clock = Clock(dut.clk, 100, units="ns")
+    clock = Clock(dut.clk, 100, unit="ns")
 
     cocotb.start_soon(clock.start())
     dut.ena.value = 1
@@ -170,10 +170,10 @@ async def test_pwm_freq(dut):
     await send_spi_transaction(dut, 1, 0x04, 0x80) #duty cycle at 50%, which reduces errors in edge detection
 
     await RisingEdge(dut.uo_out[0]) #since all 8 bits of uo_out share the same pwm signal, we can sample any one of them to get the frequency
-    t_rising_edge1 = cocotb.utils.get_sim_time(units="ns")
+    t_rising_edge1 = cocotb.utils.get_sim_time(unit="ns")
 
     await RisingEdge(dut.uo_out[0])
-    t_rising_edge2 = cocotb.utils.get_sim_time(units="ns")
+    t_rising_edge2 = cocotb.utils.get_sim_time(unit="ns")
 
     period = t_rising_edge2 - t_rising_edge1
     freq = 1e9/period
@@ -187,7 +187,7 @@ async def test_pwm_freq(dut):
 @cocotb.test()
 async def test_pwm_duty(dut):
     dut._log.info("Start PWM Duty Cycle test")
-    clock = Clock(dut.clk, 100, units="ns")
+    clock = Clock(dut.clk, 100, unit="ns")
 
     cocotb.start_soon(clock.start())
     dut.ena.value = 1
@@ -205,13 +205,13 @@ async def test_pwm_duty(dut):
     await send_spi_transaction(dut, 1, 0x04, 0x80) #duty cycle at 50%
     
     await RisingEdge(dut.uo_out[0])
-    t_rising1 = cocotb.utils.get_sim_time(units="ns")
+    t_rising1 = cocotb.utils.get_sim_time(unit="ns")
 
     await FallingEdge(dut.uo_out[0])
-    t_falling1 = cocotb.utils.get_sim_time(units="ns")
+    t_falling1 = cocotb.utils.get_sim_time(unit="ns")
 
     await RisingEdge(dut.uo_out[0])
-    t_rising2 = cocotb.utils.get_sim_time(units="ns")
+    t_rising2 = cocotb.utils.get_sim_time(unit="ns")
 
     period = t_rising2 - t_rising1
     hightime = t_falling1 - t_rising1
