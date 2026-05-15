@@ -2,6 +2,8 @@
  * Copyright (c) 2024 Ruwan Kadam
  * SPDX-License-Identifier: Apache-2.0
  */
+
+`timescale 1ns/1ps
 `default_nettype none
 module tt_um_UWASIC_onboarding_Ruwan_Kadam (
     input  wire [7:0] ui_in,    // Dedicated inputs
@@ -13,6 +15,13 @@ module tt_um_UWASIC_onboarding_Ruwan_Kadam (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
+
+initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tt_um_UWASIC_onboarding_Ruwan_Kadam);
+end
+
+  wire pwm_out = uo_out[0]; //wire added for testing purposes to observe uo_out[0] on a dedicated output pin
   assign uio_oe = 8'hFF; // Set all IOs to output
 
   reg [7:0] en_reg_out_7_0;

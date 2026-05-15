@@ -30,7 +30,7 @@ always @(posedge clk or negedge rst_n) begin
         //What if rst_n is hit and resets the COPI_sync registers to zero while data is still being pushed into them?
         //The registers would then be half-filled, which would result in an incorrect address and/or message.
         //Hence, the c_ntinue protocol ensures registers are not filled in after a reset is hit.
-        c_ntinue <= 1'b0;
+        c_ntinue <= 1'b1;
         i <= 0;
         bitstore <= 16'b0;
         transaction_ready <= 1'b0;

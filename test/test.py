@@ -107,6 +107,10 @@ async def test_spi(dut):
     dut._log.info("Test project behavior")
     dut._log.info("Write transaction, address 0x00, data 0xF0")
     ui_in_val = await send_spi_transaction(dut, 1, 0x00, 0xF0)  # Write transaction
+    dut._log.info(f"transaction_complete: {dut.instSPI.transaction_validated.value}")
+    dut._log.info(f"datahold: {dut.datahold.value}")
+    dut._log.info(f"en_reg_out_7_0: {dut.en_reg_out_7_0.value}")
+    dut._log.info(f"uo_out: {dut.uo_out.value}")
     assert dut.uo_out.value == 0xF0, f"Expected 0xF0, got {dut.uo_out.value}"
     await ClockCycles(dut.clk, 1000) 
 
@@ -169,10 +173,10 @@ async def test_pwm_freq(dut):
 
     await send_spi_transaction(dut, 1, 0x04, 0x80) #duty cycle at 50%, which reduces errors in edge detection
 
-    await RisingEdge(dut.uo_out[0]) #since all 8 bits of uo_out share the same pwm signal, we can sample any one of them to get the frequency
+    await RisingEdge(dut.pwm_out) #since all 8 bits of uo_out share the same pwm signal, we can sample any one of them to get the frequency. In this case, pwm_out samples uo_out[0].
     t_rising_edge1 = cocotb.utils.get_sim_time(unit="ns")
 
-    await RisingEdge(dut.uo_out[0])
+    await RisingEdge(dut.pwm_out)
     t_rising_edge2 = cocotb.utils.get_sim_time(unit="ns")
 
     period = t_rising_edge2 - t_rising_edge1
@@ -204,13 +208,13 @@ async def test_pwm_duty(dut):
     dut._log.info("PWM Duty Cycle 50% test begins")
     await send_spi_transaction(dut, 1, 0x04, 0x80) #duty cycle at 50%
     
-    await RisingEdge(dut.uo_out[0])
+    await RisingEdge(dut.pwm_out)
     t_rising1 = cocotb.utils.get_sim_time(unit="ns")
 
-    await FallingEdge(dut.uo_out[0])
+    await FallingEdge(dut.pwm_out)
     t_falling1 = cocotb.utils.get_sim_time(unit="ns")
 
-    await RisingEdge(dut.uo_out[0])
+    await RisingEdge(dut.pwm_out)
     t_rising2 = cocotb.utils.get_sim_time(unit="ns")
 
     period = t_rising2 - t_rising1
@@ -224,13 +228,13 @@ async def test_pwm_duty(dut):
     dut._log.info("PWM Duty Cycle 0% test begins")
     await send_spi_transaction(dut, 1, 0x04, 0x00)
     await ClockCycles(dut.clk, 5000)  # wait long enough for multiple PWM periods
-    assert dut.uo_out[0].value == 0, f"Expected 0% duty cycle, got {dut.uo_out[0].value}"
+    assert dut.pwm_out.value == 0, f"Expected 0% duty cycle, got {dut.pwm_out.value}"
 
     # 100% duty cycle test
     dut._log.info("PWM Duty Cycle 100% test begins")  
     await send_spi_transaction(dut, 1, 0x04, 0xFF)
     await ClockCycles(dut.clk, 5000)
-    assert dut.uo_out[0].value == 1, f"Expected 100% duty cycle, got {dut.uo_out[0].value}"
+    assert dut.pwm_out.value == 1, f"Expected 100% duty cycle, got {dut.pwm_out.value}"
 
     await ClockCycles(dut.clk, 1000)
     dut._log.info("PWM Duty Cycle test completed successfully")
