@@ -45,5 +45,25 @@ May/9/2026:
   end
   In this circuit, value of line_b is measured immediately, and after a wait period 1000x smaller than the clock cycle, line_a is assigned to the previously measured value of line_b.
 
+May/15/2026
+  Make is a pain to install/run on winows. Because Make is intended for Linux, certain commands that Make executes don't even work.
+  Not to mention, cocotb doesn't work on recent python versions like 3.14.
+  A whole host of issues. But here's what I learned about simulating and testing verilog files:
 
+    After writing some verilog code, it needs to be simulated it to ensure everything is working as planned (since we don't want errors to end up in the real-world ASICs).
+    As a crucial precursor step to simulation, a "testbench" (test.py) is written. The testbench is written to provide the simulator with realisic inputs that would be sent into the "device under testing" (in this case, the DUT is the top module of the verilog written beforehand). In each instance of an input, based on the function of the DUT, we expect a certain ouput: Thus, the testbench also checks for the correct corresponding outputs.
+    While the simulation can be written in verilog, cocotb makes this much easier by allowing the testbench to be written in python.
+    
+    The next step is getting Icarus Verilog to create the simulation. While this could be done using terminal commmands, the task is long and arduous. Hence, the easier option is to use automation tools such as Make or Pytest.
+      Make could be best descrived as a "build driver". The Makefile gathers information such as the project files, testbench file, simulator (IVerilog), and the toplevel language. It then runs the required terminal commands to pass the information to the IVerilog compiler. Make by itself will not deliver rich test results like Pytest. It will only run the tools you tell it to run and leave you with the output files (like .vvp and .vcd from IVerilog) and standard terminal text.
+      Pytest is more of a "test driver". Although it is purely a python testing tool, it can be used to drive verilog testbenches through the help of a bridge library like cocotb. Similarly to Make, a configuration file has to be written detailing the project information (in this project I named it conftest.py). From there, Pytest can be called to terminal, where it will execute the required terminal commands to run the testbench through IVerilog. While both Make and Pytest will automate the testbench commands, Pytest will also 'look' into the simulation and provide its own test results in the terminal.
 
+    When either Make or Pytest are used to drive the simulation, they are provided a simulator in the makefiles/configuration files. For this project Icarus Verilog is used as a simulator. However, there is a caveat here. Icarus Verilog is actually a suite of tools, of which Iverilog is the compiler. IVerilog reads the high-level Verilog code (the DUT, not the testbench yet), parses the modules, wires, and gates, checks for semantic or syntax errors, and translates it into a low-level target format. The ouput provided by the compiler is put into the output.vvp executable.
+    Next, Pytest/Make will launch the vvp simulation engine. Here, the simulation engine is made to load cocotb's VPI (Verilog Procedural Interface) shared object library, which converts the Python testbench into code that the vvp can read. Pytest, specifically, connects via Memory Interfaces: It wraps around IVerilog to build the code, then creates a real-time, interactive data pipeline directly into vvp. This pipeline allows Pytest to show test success/failure and detailed error messages in the terminal. The vvp simulator uses output.vvp and the testbench to assert wether or not the DUT is passing or failing, and produces a dump.vcd file for the waveform viewer to process, pass/fail messages, and a results.xml file (specifically for pytest).
+
+    Finally, a waveform viever such as GTKwave can be used to interact with the dump.vcd file and observe the output waveforms of the testbench.
+
+  To summarize, the flow order for my tests is: DUT verilog files + testbench test.py → conftest.py → pytest & cocotb → iverilog (including compilation and simulation) → dump.vcd → GTKWave → View Waveforms
+                                                                                                                                                                        → results.xml → Pytest pass/fail/error messages
+                                                                                                                                                                        → exit messages → unread by Pytest
+                                                                                                                                
