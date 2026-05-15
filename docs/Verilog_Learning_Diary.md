@@ -63,7 +63,7 @@ May/15/2026
 
     Finally, a waveform viever such as GTKwave can be used to interact with the dump.vcd file and observe the output waveforms of the testbench.
 
-  To summarize, the flow order for my tests is: DUT verilog files + testbench test.py → conftest.py → pytest & cocotb → iverilog (including compilation and simulation) → dump.vcd → GTKWave → View Waveforms
-                                                                                                                                                                        → results.xml → Pytest pass/fail/error messages
-                                                                                                                                                                        → exit messages → unread by Pytest
+  To summarize, the flow order for my tests is: DUT verilog files + testbench test.py → conftest.py → pytest & cocotb → iverilog (including compilation and vvp simulation) → dump.vcd → GTKWave → View Waveforms
+                                                      → results.xml → Pytest pass/fail/error messages
+                                                      → exit messages → unread by Pytest
                                                                                                                                 
