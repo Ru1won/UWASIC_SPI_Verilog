@@ -16,15 +16,21 @@ reg transaction_processed;
 reg c_ntinue;
 reg [4:0] i;
 
-always @(posedge clk) begin
-    nCS_sync1  <= nCS;
-    nCS_sync2  <= nCS_sync1;
-    nCS_prev3  <= nCS_sync2;
-    SCLK_sync1 <= SCLK;
-    SCLK_sync2 <= SCLK_sync1;
-    SCLK_prev3 <= SCLK_sync2;
-    COPI_sync1 <= COPI;
-    COPI_sync2 <= COPI_sync1;
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        nCS_sync1 <= 1'b1; 
+        nCS_sync2 <= 1'b1;
+        nCS_prev3 <= 1'b1;
+    end else begin
+        nCS_sync1  <= nCS;
+        nCS_sync2  <= nCS_sync1;
+        nCS_prev3  <= nCS_sync2;
+        SCLK_sync1 <= SCLK;
+        SCLK_sync2 <= SCLK_sync1;
+        SCLK_prev3 <= SCLK_sync2;
+        COPI_sync1 <= COPI;
+        COPI_sync2 <= COPI_sync1;
+    end
 end
 
 // Process SPI protocol in the clk domain
