@@ -11,9 +11,9 @@ reg COPI_sync1, COPI_sync2;
 reg nCS_sync1, nCS_sync2, nCS_prev3;
 reg SCLK_sync1, SCLK_sync2, SCLK_prev3;
 reg [15:0]bitstore;
-reg transaction_ready = 1'b0;
-reg transaction_processed = 1'b0;
-reg c_ntinue = 1'b1;
+reg transaction_ready;
+reg transaction_processed;
+reg c_ntinue;
 reg [4:0] i;
 
 always @(posedge clk) begin
