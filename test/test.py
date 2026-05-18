@@ -107,10 +107,6 @@ async def test_spi(dut):
     dut._log.info("Test project behavior")
     dut._log.info("Write transaction, address 0x00, data 0xF0")
     ui_in_val = await send_spi_transaction(dut, 1, 0x00, 0xF0)  # Write transaction
-    dut._log.info(f"transaction_complete: {dut.instSPI.transaction_validated.value}")
-    dut._log.info(f"datahold: {dut.datahold.value}")
-    dut._log.info(f"en_reg_out_7_0: {dut.en_reg_out_7_0.value}")
-    dut._log.info(f"uo_out: {dut.uo_out.value}")
     assert dut.uo_out.value == 0xF0, f"Expected 0xF0, got {dut.uo_out.value}"
     await ClockCycles(dut.clk, 1000) 
 
