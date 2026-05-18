@@ -18,7 +18,7 @@ module tt_um_UWASIC_onboarding_Ruwan_Kadam (
 
 `ifndef SYNTHESIS
 initial begin
-    $dumpfile("dump.vcd");
+    $dumpfile("tb.vcd");
     $dumpvars(0, tt_um_UWASIC_onboarding_Ruwan_Kadam);
 end
 `endif
