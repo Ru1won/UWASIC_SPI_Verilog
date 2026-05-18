@@ -100,9 +100,9 @@ async def test_spi(dut):
     sclk = 0
     dut.ui_in.value = ui_in_logicarray(ncs, bit, sclk)
     dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 5)
+    await ClockCycles(dut.clk, 50)
     dut.rst_n.value = 1
-    await ClockCycles(dut.clk, 5)
+    await ClockCycles(dut.clk, 50)
 
     dut._log.info("Test project behavior")
     dut._log.info("Write transaction, address 0x00, data 0xF0")
@@ -159,9 +159,9 @@ async def test_pwm_freq(dut):
     dut.ena.value = 1
     dut.ui_in.value = ui_in_logicarray(1, 0, 0)  # idle state while resetting
     dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 5)
+    await ClockCycles(dut.clk, 50)
     dut.rst_n.value = 1
-    await ClockCycles(dut.clk, 5)
+    await ClockCycles(dut.clk, 50)
 
     await send_spi_transaction(dut, 1, 0x00, 0xFF)  # set uo_out[7:0] base value to 0xFF
 
@@ -193,9 +193,9 @@ async def test_pwm_duty(dut):
     dut.ena.value = 1
     dut.ui_in.value = ui_in_logicarray(1, 0, 0)  # idle state while resetting
     dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 5)
+    await ClockCycles(dut.clk, 50)
     dut.rst_n.value = 1
-    await ClockCycles(dut.clk, 5)
+    await ClockCycles(dut.clk, 50)
 
     await send_spi_transaction(dut, 1, 0x00, 0xFF)  # set uo_out[7:0] base value to 0xFF
 

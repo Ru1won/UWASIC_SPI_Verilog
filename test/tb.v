@@ -13,14 +13,6 @@ module tb ();
     #1;
   end
 
-  initial begin
-    clk = 0;
-    rst_n = 0;
-    ena = 1;
-    ui_in = 8'hFF;  // nCS high (bit 2), SCLK low, COPI low
-    uio_in = 8'h00;
-end
-
   // Wire up the inputs and outputs:
   reg clk;
   reg rst_n;
