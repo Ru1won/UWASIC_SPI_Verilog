@@ -21,6 +21,11 @@ always @(posedge clk or negedge rst_n) begin
         nCS_sync1 <= 1'b1; 
         nCS_sync2 <= 1'b1;
         nCS_prev3 <= 1'b1;
+        SCLK_sync1 <= 1'b0;
+        SCLK_sync2 <= 1'b0;
+        SCLK_prev3 <= 1'b0;
+        COPI_sync1 <= 1'b0;
+        COPI_sync2 <= 1'b0;
     end else begin
         nCS_sync1  <= nCS;
         nCS_sync2  <= nCS_sync1;
