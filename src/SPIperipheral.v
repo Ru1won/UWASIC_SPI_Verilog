@@ -16,16 +16,19 @@ reg transaction_processed = 1'b0;
 reg c_ntinue = 1'b1;
 reg [4:0] i;
 
-// Process SPI protocol in the clk domain
-always @(posedge clk or negedge rst_n) begin
-    nCS_sync1 <= nCS;
-    nCS_sync2 <= nCS_sync1;
-    nCS_prev3 <= nCS_sync2;
+always @(posedge clk) begin
+    nCS_sync1  <= nCS;
+    nCS_sync2  <= nCS_sync1;
+    nCS_prev3  <= nCS_sync2;
     SCLK_sync1 <= SCLK;
     SCLK_sync2 <= SCLK_sync1;
     SCLK_prev3 <= SCLK_sync2;
     COPI_sync1 <= COPI;
     COPI_sync2 <= COPI_sync1;
+end
+
+// Process SPI protocol in the clk domain
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         //What if rst_n is hit and resets the COPI_sync registers to zero while data is still being pushed into them?
         //The registers would then be half-filled, which would result in an incorrect address and/or message.
