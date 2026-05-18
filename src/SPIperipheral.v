@@ -37,7 +37,6 @@ always @(posedge clk or negedge rst_n) begin
         i <= 0;
         bitstore <= 16'b0;
         transaction_ready <= 1'b0;
-        bitsend <= 16'b0;
     end
     else if ((nCS_sync2 == 1'b0)&&(c_ntinue == 1'b1)) begin //ensure nCS is low
         if ((SCLK_sync2 && !SCLK_prev3)&( i < 16)) begin
@@ -64,6 +63,7 @@ always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         transaction_processed <= 1'b0;
         transaction_validated <= 1'b0;
+        bitsend <= 16'b0;
     end else if (transaction_ready && !transaction_processed) begin
         // Transaction is ready and not yet processed
         bitsend[15:0] <= bitstore[15:0];
